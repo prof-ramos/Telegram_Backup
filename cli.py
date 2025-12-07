@@ -10,6 +10,7 @@ import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
+from typing import Dict
 
 import click
 from dotenv import load_dotenv
@@ -27,9 +28,9 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from telegram_backup import (
     TelegramBackupManager, 
     create_backup_manager, 
-    run_backup,
-    MessageType
+    run_backup
 )
+from models import MessageType
 
 # Configuração
 load_dotenv()

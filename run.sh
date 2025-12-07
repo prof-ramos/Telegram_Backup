@@ -50,6 +50,11 @@ if [ ! -f "streamlit_app.py" ]; then
     exit 1
 fi
 
+# Verificação de segurança de arquivos de sessão
+print_info "Verificando permissões de segurança..."
+find . -name "*.session" -type f -exec chmod 600 {} \;
+print_success "Permissões de arquivos de sessão ajustadas (600)"
+
 # Mensagem de boas-vindas
 echo ""
 echo "======================================================"

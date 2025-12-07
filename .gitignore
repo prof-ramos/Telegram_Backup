@@ -1,0 +1,30 @@
+# Environments
+.env
+config.env
+.venv/
+venv/
+env/
+
+# Telegram Session
+*.session
+*.session-journal
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs and Backups
+logs/
+backups/
+telegram_backup.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDEs
+.vscode/
+.idea/
