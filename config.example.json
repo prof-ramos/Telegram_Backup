@@ -1,0 +1,30 @@
+{
+  "routes": {
+    "@meu_canal": "me",
+    "123456789": "backup_group_id",
+    "@grupo_tech": "saved_messages"
+  },
+  "filters": {
+    "media_only": false,
+    "photos": true,
+    "videos": true,
+    "documents": false,
+    "text_messages": true
+  },
+  "settings": {
+    "max_workers": 4,
+    "batch_size": 100,
+    "retry_delay": 5,
+    "timeout": 30
+  },
+  "advanced": {
+    "enable_logging": true,
+    "log_level": "INFO",
+    "save_session": true,
+    "auto_retry": true,
+    "rate_limit": {
+      "enabled": true,
+      "messages_per_second": 10
+    }
+  }
+}

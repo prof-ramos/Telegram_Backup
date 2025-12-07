@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Interativa - Telegram Backup CLI</title>
+    <meta name="description" content="Demonstração interativa do sistema de backup para Telegram">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        'sage': {
+                            50: '#f6f7f6',
+                            100: '#e3e7e3',
+                            200: '#c7d0c7',
+                            300: '#a2b2a2',
+                            400: '#7a907a',
+                            500: '#5c7359',
+                            600: '#485d46',
+                            700: '#3c4d3b',
+                            800: '#334032',
+                            900: '#2b352b'
+                        },
+                        'charcoal': {
+                            50: '#f6f6f6',
+                            100: '#e7e7e7',
+                            200: '#d1d1d1',
+                            300: '#b0b0b0',
+                            400: '#888888',
+                            500: '#6d6d6d',
+                            600: '#5d5d5d',
+                            700: '#4f4f4f',
+                            800: '#454545',
+                            900: '#3d3d3d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .terminal-window {
+            background: #2b352b;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        .terminal-header {
+            background: #3c4d3b;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .terminal-content {
+            padding: 1.5rem;
+            color: #e3e7e3;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            height: 400px;
+            overflow-y: auto;
+        }
+        
+        .demo-card {
+            backdrop-filter: blur(10px);
+            background: rgba(246, 247, 246, 0.9);
+            border: 1px solid rgba(162, 178, 162, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(92, 115, 89, 0.1);
+        }
+        
+        .typing-animation {
+            border-right: 2px solid #5c7359;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { border-color: #5c7359; }
+            51%, 100% { border-color: transparent; }
+        }
+        
+        .command-button {
+            background: linear-gradient(135deg, #5c7359, #485d46);
+            transition: all 0.3s ease;
+        }
+        
+        .command-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(92, 115, 89, 0.3);
+        }
+        
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-sage-50 text-charcoal-900 font-sans">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md border-b border-sage-200 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="index.html" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                        <div class="w-8 h-8 bg-sage-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-semibold text-charcoal-900">Telegram Backup CLI</span>
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-charcoal-600 hover:text-sage-600 transition-colors">Home</a>
+                    <a href="docs.html" class="text-charcoal-600 hover:text-sage-600 transition-colors">Documentação</a>
+                    <a href="index.html#installation" class="bg-sage-600 text-white px-6 py-2 rounded-lg hover:bg-sage-700 transition-colors">
+                        Instalação
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="pt-24 pb-12 bg-gradient-to-br from-sage-100 to-sage-200">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center scroll-reveal">
+                <h1 class="text-5xl font-bold text-charcoal-900 mb-4">Demo Interativa</h1>
+                <p class="text-xl text-charcoal-600 max-w-3xl mx-auto">
+                    Experimente o sistema de backup em ação com demonstrações interativas e exemplos práticos
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Demo Content -->
+    <div class="max-w-7xl mx-auto px-6 py-12">
+        <!-- Interactive Terminal -->
+        <section class="mb-16 scroll-reveal">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-charcoal-900 mb-4">Terminal Interativo</h2>
+                <p class="text-lg text-charcoal-600">
+                    Clique nos comandos abaixo para ver a simulação em tempo real
+                </p>
+            </div>
+            
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Command Buttons -->
+                <div class="space-y-4">
+                    <h3 class="text-xl font-semibold text-charcoal-900 mb-4">Comandos Disponíveis</h3>
+                    
+                    <button onclick="runCommand('menu')" class="command-button w-full text-white p-4 rounded-xl text-left">
+                        <div class="font-mono text-sm mb-1">$ python backup_cli.py menu</div>
+                        <div class="text-sage-200 text-sm">Interface interativa completa</div>
+                    </button>
+                    
+                    <button onclick="runCommand('show-config')" class="command-button w-full text-white p-4 rounded-xl text-left">
+                        <div class="font-mono text-sm mb-1">$ python backup_cli.py show-config</div>
+                        <div class="text-sage-200 text-sm">Mostrar configuração atual</div>
+                    </button>
+                    
+                    <button onclick="runCommand('add-route')" class="command-button w-full text-white p-4 rounded-xl text-left">
+                        <div class="font-mono text-sm mb-1">$ python backup_cli.py add-route</div>
+                        <div class="text-sage-200 text-sm">Adicionar nova rota</div>
+                    </button>
+                    
+                    <button onclick="runCommand('run')" class="command-button w-full text-white p-4 rounded-xl text-left">
+                        <div class="font-mono text-sm mb-1">$ python backup_cli.py run</div>
+                        <div class="text-sage-200 text-sm">Executar backup</div>
+                    </button>
+                </div>
+                
+                <!-- Terminal Display -->
+                <div class="lg:col-span-2">
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-dot bg-red-500"></div>
+                            <div class="terminal-dot bg-yellow-500"></div>
+                            <div class="terminal-dot bg-green-500"></div>
+                            <span class="text-sage-200 text-sm ml-3">telegram-backup-cli demo</span>
+                        </div>
+                        <div class="terminal-content" id="terminal-output">
+                            <div class="text-green-400">🚀 Bem-vindo ao Telegram Backup CLI Demo!</div>
+                            <div class="text-white mt-2">Clique nos comandos à esquerda para ver a demonstração.</div>
+                            <div class="text-sage-300 mt-4">Sistema pronto para execução...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Showcase -->
+        <section class="mb-16 scroll-reveal">
+            <h2 class="text-3xl font-bold text-charcoal-900 mb-8 text-center">Funcionalidades em Ação</h2>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="demo-card p-6 rounded-xl">
+                    <div class="w-12 h-12 bg-sage-600 rounded-xl flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-charcoal-900 mb-2">Backup em Tempo Real</h3>
+                    <p class="text-charcoal-600 text-sm mb-4">
+                        Monitoramento contínuo com encaminhamento automático de novas mensagens
+                    </p>
+                    <div class="text-xs text-sage-600 bg-sage-100 px-2 py-1 rounded inline-block">
+                        Event-Driven
+                    </div>
+                </div>
+                
+                <div class="demo-card p-6 rounded-xl">
+                    <div class="w-12 h-12 bg-sage-600 rounded-xl flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-charcoal-900 mb-2">Filtros Inteligentes</h3>
+                    <p class="text-charcoal-600 text-sm mb-4">
+                        Filtros personalizáveis para mídia, fotos, vídeos e mensagens de texto
+                    </p>
+                    <div class="text-xs text-sage-600 bg-sage-100 px-2 py-1 rounded inline-block">
+                        Configurável
+                    </div>
+                </div>
+                
+                <div class="demo-card p-6 rounded-xl">
+                    <div class="w-12 h-12 bg-sage-600 rounded-xl flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-charcoal-900 mb-2">Interface Rich</h3>
+                    <p class="text-charcoal-600 text-sm mb-4">
+                        Interface visual elegante com tabelas, cores e menus interativos
+                    </p>
+                    <div class="text-xs text-sage-600 bg-sage-100 px-2 py-1 rounded inline-block">
+                        User-Friendly
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuration Example -->
+        <section class="mb-16 scroll-reveal">
+            <h2 class="text-3xl font-bold text-charcoal-900 mb-8 text-center">Exemplo de Configuração</h2>
+            
+            <div class="grid lg:grid-cols-2 gap-8">
+                <div class="demo-card p-6 rounded-xl">
+                    <h3 class="text-xl font-semibold text-charcoal-900 mb-4">config.env</h3>
+                    <div class="terminal-window">
+                        <div class="terminal-content text-sm">
+                            <div class="text-green-400"># Credenciais da API do Telegram</div>
+                            <div class="text-white">API_ID=12345678</div>
+                            <div class="text-white">API_HASH=abcdef1234567890abcdef1234567890</div>
+                            <div class="text-white">SESSION_NAME=backup_premium</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="demo-card p-6 rounded-xl">
+                    <h3 class="text-xl font-semibold text-charcoal-900 mb-4">config.json</h3>
+                    <div class="terminal-window">
+                        <div class="terminal-content text-sm">
+                            <div class="text-white">{</div>
+                            <div class="text-white ml-2">"routes": {</div>
+                            <div class="text-white ml-4">"@meu_canal": "me",</div>
+                            <div class="text-white ml-4">"123456789": "backup_group"</div>
+                            <div class="text-white ml-2">},</div>
+                            <div class="text-white ml-2">"filters": {</div>
+                            <div class="text-white ml-4">"media_only": false,</div>
+                            <div class="text-white ml-4">"photos": true,</div>
+                            <div class="text-white ml-4">"videos": true</div>
+                            <div class="text-white ml-2">}</div>
+                            <div class="text-white">}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Dashboard -->
+        <section class="scroll-reveal">
+            <h2 class="text-3xl font-bold text-charcoal-900 mb-8 text-center">Estatísticas do Sistema</h2>
+            
+            <div class="grid md:grid-cols-4 gap-6">
+                <div class="demo-card p-6 rounded-xl text-center">
+                    <div class="text-3xl font-bold text-sage-600 mb-2" id="chats-count">0</div>
+                    <div class="text-charcoal-600 text-sm">Chats Monitorados</div>
+                </div>
+                
+                <div class="demo-card p-6 rounded-xl text-center">
+                    <div class="text-3xl font-bold text-sage-600 mb-2" id="messages-count">0</div>
+                    <div class="text-charcoal-600 text-sm">Mensagens Processadas</div>
+                </div>
+                
+                <div class="demo-card p-6 rounded-xl text-center">
+                    <div class="text-3xl font-bold text-sage-600 mb-2" id="routes-count">0</div>
+                    <div class="text-charcoal-600 text-sm">Rotas Ativas</div>
+                </div>
+                
+                <div class="demo-card p-6 rounded-xl text-center">
+                    <div class="text-3xl font-bold text-sage-600 mb-2" id="uptime-count">0</div>
+                    <div class="text-charcoal-600 text-sm">Horas Online</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-sage-900 text-white py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-3 mb-6">
+                    <div class="w-8 h-8 bg-sage-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-semibold">Telegram Backup CLI</span>
+                </div>
+                
+                <p class="text-sage-300 mb-8 max-w-2xl mx-auto">
+                    Demonstração interativa do sistema profissional de backup para Telegram. 
+                    Experimente todas as funcionalidades em ambiente simulado.
+                </p>
+                
+                <div class="border-t border-sage-700 pt-8">
+                    <p class="text-sage-400 text-sm">
+                        © 2024 Telegram Backup CLI. Demo interativa com exemplos práticos.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Command simulations
+        const commandOutputs = {
+            'menu': [
+                '🚀 Iniciando Telegram Backup CLI...',
+                '✅ Conectado com sucesso!',
+                '',
+                '┌─────────────────────────────────────────┐',
+                '│          Telegram Bot-Backup           │',
+                '├─────────────────────────────────────────┤',
+                '│ Rotas configuradas: 2                   │',
+                '│ Rotas ativas: 2                         │',
+                '│ Filtros: {\'media_only\': False, ...}    │',
+                '└─────────────────────────────────────────┘',
+                '',
+                '[bold cyan]Opções:[/bold cyan]',
+                '[1] Listar rotas',
+                '[2] Escolher rotas ativas',
+                '[3] Configurar filtros',
+                '[4] Iniciar backup',
+                '[5] Salvar config',
+                '[0] Sair',
+                '',
+                'Escolha: [4]'
+            ],
+            'show-config': [
+                '📋 Configuração Atual',
+                '',
+                '┌─────────────────────────────────────────┐',
+                '│  Rotas de Backup (origem → destino)   │',
+                '├────┬─────────────┬──────────┬─────────┤',
+                '│ #  │ Origem      │ Destino  │ Ativo   │',
+                '├────┼─────────────┼──────────┼─────────┤',
+                '│ 1  │ @meu_canal  │ Saved    │ ✔       │',
+                '│ 2  │ Grupo Tech  │ Backup   │ ✔       │',
+                '└────┴─────────────┴──────────┴─────────┘',
+                '',
+                '[bold]Filtros:[/bold] {\'media_only\': False, \'photos\': True, \'videos\': True}'
+            ],
+            'add-route': [
+                '➕ Adicionar nova rota de backup',
+                '',
+                '📋 Chats disponíveis:',
+                '┌────┬─────────────────┬────────────┐',
+                '│ #  │ Nome            │ Tipo       │',
+                '├────┼─────────────────┼────────────┤',
+                '│ 1  │ @tech_news      │ Canal      │',
+                '│ 2  │ Grupo Python    │ Grupo      │',
+                '│ 3  │ Meu Canal       │ Canal      │',
+                '│ 4  │ Saved Messages  │ Pessoal    │',
+                '└────┴─────────────────┴────────────┘',
+                '',
+                'Origem (chat que será copiado): 2',
+                'Destino (onde salvar): me',
+                '✅ Rota adicionada com sucesso!',
+                '📝 Configuração salva em config.json'
+            ],
+            'run': [
+                '🚀 Iniciando backup com 2 rotas...',
+                '',
+                '[yellow]Backup histórico:[/yellow]',
+                '[cyan][HISTÓRICO][/cyan] Chat 123456789 (último id salvo: 1500)',
+                '[green][HISTÓRICO][/green] Chat 123456789: 45 mensagens novas copiadas.',
+                '[cyan][HISTÓRICO][/cyan] Chat 789012345 (último id salvo: 2300)',
+                '[green][HISTÓRICO][/green] Chat 789012345: 23 mensagens novas copiadas.',
+                '',
+                '[bold green]✅ Backup contínuo iniciado![/bold green]',
+                '[dim](Ctrl+C para parar)[/dim]',
+                '',
+                '2024-01-15T10:30:25 Nova msg 2456 copiada do chat 123456789',
+                '2024-01-15T10:31:12 Nova msg 1567 copiada do chat 789012345',
+                '2024-01-15T10:32:08 Nova msg 2457 copiada do chat 123456789'
+            ]
+        };
+
+        let currentCommand = '';
+        let outputIndex = 0;
+        let typingInterval;
+
+        function runCommand(command) {
+            const terminal = document.getElementById('terminal-output');
+            const output = commandOutputs[command];
+            
+            // Clear terminal
+            terminal.innerHTML = '';
+            currentCommand = command;
+            outputIndex = 0;
+            
+            // Show command
+            const commandLine = document.createElement('div');
+            commandLine.className = 'text-green-400';
+            commandLine.textContent = `$ python backup_cli.py ${command}`;
+            terminal.appendChild(commandLine);
+            
+            // Start typing animation
+            typingInterval = setInterval(() => {
+                if (outputIndex < output.length) {
+                    const line = document.createElement('div');
+                    line.className = 'text-white';
+                    line.textContent = output[outputIndex];
+                    terminal.appendChild(line);
+                    terminal.scrollTop = terminal.scrollHeight;
+                    outputIndex++;
+                } else {
+                    clearInterval(typingInterval);
+                }
+            }, 100);
+        }
+
+        // Animate counters
+        function animateCounter(elementId, target, duration = 2000) {
+            const element = document.getElementById(elementId);
+            const increment = target / (duration / 16);
+            let current = 0;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current);
+            }, 16);
+        }
+
+        // Initialize demo
+        function initDemo() {
+            // Animate statistics
+            setTimeout(() => {
+                animateCounter('chats-count', 12);
+                animateCounter('messages-count', 15420);
+                animateCounter('routes-count', 8);
+                animateCounter('uptime-count', 168);
+            }, 1000);
+        }
+
+        // Scroll reveal animation
+        function initScrollReveal() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                    }
+                });
+            }, observerOptions);
+            
+            document.querySelectorAll('.scroll-reveal').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initScrollReveal();
+            initDemo();
+        });
+    </script>
+</body>
+</html>

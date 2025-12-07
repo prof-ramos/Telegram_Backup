@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentação Técnica - Telegram Backup CLI</title>
+    <meta name="description" content="Documentação técnica completa do sistema de backup para Telegram">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        'sage': {
+                            50: '#f6f7f6',
+                            100: '#e3e7e3',
+                            200: '#c7d0c7',
+                            300: '#a2b2a2',
+                            400: '#7a907a',
+                            500: '#5c7359',
+                            600: '#485d46',
+                            700: '#3c4d3b',
+                            800: '#334032',
+                            900: '#2b352b'
+                        },
+                        'charcoal': {
+                            50: '#f6f6f6',
+                            100: '#e7e7e7',
+                            200: '#d1d1d1',
+                            300: '#b0b0b0',
+                            400: '#888888',
+                            500: '#6d6d6d',
+                            600: '#5d5d5d',
+                            700: '#4f4f4f',
+                            800: '#454545',
+                            900: '#3d3d3d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .code-block {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+        
+        .sidebar-nav {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+        
+        .doc-section {
+            scroll-margin-top: 100px;
+        }
+        
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-sage-50 text-charcoal-900 font-sans">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md border-b border-sage-200 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="index.html" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                        <div class="w-8 h-8 bg-sage-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-semibold text-charcoal-900">Telegram Backup CLI</span>
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-charcoal-600 hover:text-sage-600 transition-colors">Home</a>
+                    <a href="#api-reference" class="text-charcoal-600 hover:text-sage-600 transition-colors">API Reference</a>
+                    <a href="#examples" class="text-charcoal-600 hover:text-sage-600 transition-colors">Examples</a>
+                    <a href="index.html#installation" class="bg-sage-600 text-white px-6 py-2 rounded-lg hover:bg-sage-700 transition-colors">
+                        Instalação
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="pt-24 pb-12 bg-gradient-to-br from-sage-100 to-sage-200">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center scroll-reveal">
+                <h1 class="text-5xl font-bold text-charcoal-900 mb-4">Documentação Técnica</h1>
+                <p class="text-xl text-charcoal-600 max-w-3xl mx-auto">
+                    Guia completo de implementação, configuração e uso avançado do sistema de backup
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-6 py-12">
+        <div class="grid lg:grid-cols-4 gap-8">
+            <!-- Sidebar Navigation -->
+            <div class="lg:col-span-1">
+                <div class="sidebar-nav bg-white rounded-xl p-6 shadow-sm border border-sage-200">
+                    <h3 class="font-semibold text-charcoal-900 mb-4">Navegação</h3>
+                    <nav class="space-y-2">
+                        <a href="#overview" class="block text-sm text-charcoal-600 hover:text-sage-600 py-1 transition-colors">Visão Geral</a>
+                        <a href="#architecture" class="block text-sm text-charcoal-600 hover:text-sage-600 py-1 transition-colors">Arquitetura</a>
+                        <a href="#configuration" class="block text-sm text-charcoal-600 hover:text-sage-600 py-1 transition-colors">Configuração</a>
+                        <a href="#api-reference" class="block text-sm text-charcoal-600 hover:text-sage-600 py-1 transition-colors">API Reference</a>
+                        <a href="#examples" class="block text-sm text-charcoal-600 hover:text-sage-600 py-1 transition-colors">Exemplos</a>
+                        <a href="#troubleshooting" class="block text-sm text-charcoal-600 hover:text-sage-600 py-1 transition-colors">Solução de Problemas</a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Documentation -->
+            <div class="lg:col-span-3 space-y-16">
+                <!-- Overview Section -->
+                <section id="overview" class="doc-section scroll-reveal">
+                    <h2 class="text-3xl font-bold text-charcoal-900 mb-6">Visão Geral</h2>
+                    <div class="prose prose-lg max-w-none">
+                        <p class="text-charcoal-600 leading-relaxed mb-6">
+                            O Telegram Backup CLI é um sistema profissional desenvolvido em Python que utiliza a biblioteca 
+                            Telethon para automatizar o backup de mensagens entre chats do Telegram. O sistema oferece 
+                            backup em tempo real, filtros inteligentes e uma interface visual elegante usando a biblioteca Rich.
+                        </p>
+                        
+                        <div class="grid md:grid-cols-3 gap-6 my-8">
+                            <div class="bg-white p-6 rounded-xl border border-sage-200">
+                                <h3 class="font-semibold text-charcoal-900 mb-2">Telethon</h3>
+                                <p class="text-sm text-charcoal-600">Biblioteca Python para automação do Telegram</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-xl border border-sage-200">
+                                <h3 class="font-semibold text-charcoal-900 mb-2">Rich CLI</h3>
+                                <p class="text-sm text-charcoal-600">Interface visual com tabelas e cores</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-xl border border-sage-200">
+                                <h3 class="font-semibold text-charcoal-900 mb-2">Click</h3>
+                                <p class="text-sm text-charcoal-600">Framework para criação de comandos CLI</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Architecture Section -->
+                <section id="architecture" class="doc-section scroll-reveal">
+                    <h2 class="text-3xl font-bold text-charcoal-900 mb-6">Arquitetura do Sistema</h2>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-white p-6 rounded-xl border border-sage-200">
+                            <h3 class="text-xl font-semibold text-charcoal-900 mb-4">Componentes Principais</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-8 h-8 bg-sage-600 text-white rounded-lg flex items-center justify-center text-sm font-semibold">1</div>
+                                    <div>
+                                        <h4 class="font-semibold text-charcoal-900">TelegramClient</h4>
+                                        <p class="text-charcoal-600 text-sm">Conexão principal com a API do Telegram usando Telethon</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-8 h-8 bg-sage-600 text-white rounded-lg flex items-center justify-center text-sm font-semibold">2</div>
+                                    <div>
+                                        <h4 class="font-semibold text-charcoal-900">Event Handler</h4>
+                                        <p class="text-charcoal-600 text-sm">Processa eventos de novas mensagens em tempo real</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-8 h-8 bg-sage-600 text-white rounded-lg flex items-center justify-center text-sm font-semibold">3</div>
+                                    <div>
+                                        <h4 class="font-semibold text-charcoal-900">Filter Engine</h4>
+                                        <p class="text-charcoal-600 text-sm">Aplica filtros de mídia e conteúdo configurados</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-8 h-8 bg-sage-600 text-white rounded-lg flex items-center justify-center text-sm font-semibold">4</div>
+                                    <div>
+                                        <h4 class="font-semibold text-charcoal-900">State Manager</h4>
+                                        <p class="text-charcoal-600 text-sm">Gerencia estado persistente para evitar duplicações</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl border border-sage-200">
+                            <h3 class="text-xl font-semibold text-charcoal-900 mb-4">Fluxo de Execução</h3>
+                            <div class="code-block">
+                                <div class="text-green-400"># Fluxo principal do sistema</div>
+                                <div class="text-white mt-2">1. Carregar configuração (config.json, config.env)</div>
+                                <div class="text-white">2. Conectar ao Telegram (TelegramClient)</div>
+                                <div class="text-white">3. Resolver entidades de chat</div>
+                                <div class="text-white">4. Configurar event handlers</div>
+                                <div class="text-white">5. Executar backup histórico</div>
+                                <div class="text-white">6. Iniciar monitoramento em tempo real</div>
+                                <div class="text-white">7. Manter estado persistente</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Configuration Section -->
+                <section id="configuration" class="doc-section scroll-reveal">
+                    <h2 class="text-3xl font-bold text-charcoal-900 mb-6">Configuração</h2>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-white p-6 rounded-xl border border-sage-200">
+                            <h3 class="text-xl font-semibold text-charcoal-900 mb-4">config.env</h3>
+                            <p class="text-charcoal-600 mb-4">Credenciais da API do Telegram</p>
+                            <div class="code-block">
+                                <div class="text-green-400"># Credenciais da API do Telegram</div>
+                                <div class="text-white">API_ID=sua_api_id</div>
+                                <div class="text-white">API_HASH=sua_api_hash</div>
+                                <div class="text-white">SESSION_NAME=backup_premium</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl border border-sage-200">
+                            <h3 class="text-xl font-semibold text-charcoal-900 mb-4">config.json</h3>
+                            <p class="text-charcoal-600 mb-4">Rotas e filtros de backup</p>
+                            <div class="code-block">
+                                <div class="text-white">{</div>
+                                <div class="text-white ml-4">"routes": {</div>
+                                <div class="text-white ml-8">"123456789": "me",</div>
+                                <div class="text-white ml-8">"@meu_canal": "backup_chat_id"</div>
+                                <div class="text-white ml-4">},</div>
+                                <div class="text-white ml-4">"filters": {</div>
+                                <div class="text-white ml-8">"media_only": false,</div>
+                                <div class="text-white ml-8">"photos": true,</div>
+                                <div class="text-white ml-8">"videos": true</div>
+                                <div class="text-white ml-4">}</div>
+                                <div class="text-white">}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl border border-sage-200">
+                            <h3 class="text-xl font-semibold text-charcoal-900 mb-4">Opções de Filtros</h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <h4 class="font-semibold text-charcoal-900 mb-2">media_only</h4>
+                                    <p class="text-sm text-charcoal-600">Apenas mensagens com mídia (fotos, vídeos, documentos)</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-charcoal-900 mb-2">photos</h4>
+                                    <p class="text-sm text-charcoal-600">Incluir fotos no backup</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-charcoal-900 mb-2">videos</h4>
+                                    <p class="text-sm text-charcoal-600">Incluir vídeos no backup</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-charcoal-900 mb-2">text</h4>
+                                    <p class="text-sm text-charcoal-600">Incluir mensagens de texto (quando media_only=false)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- API Reference Section -->
+                <section id="api-reference" class="doc-section scroll-reveal">
+                    <h2 class="text-3xl font-bold text-charcoal-900 mb-6">API Reference</h2>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-white p-6 rounded-xl border border-sage-200">
+                            <h3 class="text-xl font-semibold text-charcoal-900 mb-4">Funções Principais</h3>
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="font-mono text-sage-600 mb-2">load_config()</h4>
+                                    <p class="text-charcoal-600 mb-2">Carrega configuração de rotas e filtros do config.json</p>
+                                    <div class="code-block">
+                                        <div class="text-green-400"># Retorna: tuple(routes: dict, filters: dict)</div>
+                                        <div class="text-white">routes, filters = load_config()</div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-mono text-sage-600 mb-2">resolve_route_names(routes)</h4>
+                                    <p class="text-charcoal-600 mb-2">Resolve nomes amigáveis para chats usando Telethon</p>
+                                    <div class="code-block">
+                                        <div class="text-green-400"># Retorna: dict com nomes formatados</div>
+                                        <div class="text-white">names = await resolve_route_names(routes)</div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-mono text-sage-600 mb-2">should_backup(message)</h4>
+                                    <p class="text-charcoal-600 mb-2">Verifica se mensagem deve ser backupada baseado nos filtros</p>
+                                    <div class="code-block">
+                                        <div class="text-green-400"># Retorna: bool</div>
+                                        <div class="text-white">if should_backup(message):</div>
+                                        <div class="text-white ml-4">await forward_message()</div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-mono text-sage-600 mb-2">backup_history_for_chat(src_entity, dst_entity)</h4>
+                                    <p class="text-charcoal-600 mb-2">Faz backup histórico de um chat específico</p>
+                                    <div class="code-block">
+                                        <div class="text-green-400"># Processa mensagens antigas</div>
+                                        <div class="text-white">await backup_history_for_chat(source, destination)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl border border-sage-200">
+                            <h3 class="text-xl font-semibold text-charcoal-900 mb-4">Classes e Estruturas</h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="font-semibold text-charcoal-900">TelegramClient</h4>
+                                    <p class="text-charcoal-600 text-sm">Conexão principal com a API do Telegram</p>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-charcoal-900">Console (Rich)</h4>
+                                    <p class="text-charcoal-600 text-sm">Interface visual para exibição de tabelas e menus</p>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-charcoal-900">Click Group</h4>
+                                    <p class="text-charcoal-600 text-sm">Estrutura de comandos CLI</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Examples Section -->
+                <section id="examples" class="doc-section scroll-reveal">
+                    <h2 class="text-3xl font-bold text-charcoal-900 mb-6">Exemplos de Uso</h2>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-white p-6 rounded-xl border border-sage-200">
+                            <h3 class="text-xl font-semibold text-charcoal-900 mb-4">Exemplo 1: Backup Básico</h3>
+                            <div class="code-block">
+                                <div class="text-green-400"># Configurar rota simples</div>
+                                <div class="text-white">python backup_cli.py add-route</div>
+                                <div class="text-white"># Selecionar origem: @meu_canal</div>
+                                <div class="text-white"># Selecionar destino: me</div>
+                                <div class="text-white"># Executar backup</div>
+                                <div class="text-white">python backup_cli.py run</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl border border-sage-200">
+                            <h3 class="text-xl font-semibold text-charcoal-900 mb-4">Exemplo 2: Backup com Filtros</h3>
+                            <div class="code-block">
+                                <div class="text-green-400"># Configurar apenas mídia</div>
+                                <div class="text-white">python backup_cli.py menu</div>
+                                <div class="text-white"># Opção 3: Configurar filtros</div>
+                                <div class="text-white"># media_only: true</div>
+                                <div class="text-white"># photos: true</div>
+                                <div class="text-white"># videos: true</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl border border-sage-200">
+                            <h3 class="text-xl font-semibold text-charcoal-900 mb-4">Exemplo 3: Múltiplas Rotas</h3>
+                            <div class="code-block">
+                                <div class="text-green-400"># Adicionar múltiplas rotas</div>
+                                <div class="text-white">python backup_cli.py add-route</div>
+                                <div class="text-white"># Origem: @canal_tech → Destino: backup_tech</div>
+                                <div class="text-white">python backup_cli.py add-route</div>
+                                <div class="text-white"># Origem: @canal_news → Destino: backup_news</div>
+                                <div class="text-white"># Verificar configuração</div>
+                                <div class="text-white">python backup_cli.py show-config</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Troubleshooting Section -->
+                <section id="troubleshooting" class="doc-section scroll-reveal">
+                    <h2 class="text-3xl font-bold text-charcoal-900 mb-6">Solução de Problemas</h2>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-white p-6 rounded-xl border border-sage-200">
+                            <h3 class="text-xl font-semibold text-charcoal-900 mb-4">Problemas Comuns</h3>
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="font-semibold text-charcoal-900 mb-2">Erro de conexão com Telegram</h4>
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-3">
+                                        <p class="text-red-800 text-sm">ConnectionError: Unable to connect</p>
+                                    </div>
+                                    <p class="text-charcoal-600 text-sm mb-2"><strong>Solução:</strong></p>
+                                    <ul class="text-charcoal-600 text-sm space-y-1 ml-4">
+                                        <li>• Verifique sua conexão com a internet</li>
+                                        <li>• Confirme as credenciais API_ID e API_HASH</li>
+                                        <li>• Verifique se não há bloqueios de firewall</li>
+                                    </ul>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-charcoal-900 mb-2">Sessão expirada</h4>
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-3">
+                                        <p class="text-yellow-800 text-sm">SessionRevokedError: The authorization has been revoked</p>
+                                    </div>
+                                    <p class="text-charcoal-600 text-sm mb-2"><strong>Solução:</strong></p>
+                                    <ul class="text-charcoal-600 text-sm space-y-1 ml-4">
+                                        <li>• Delete o arquivo de sessão (.session)</li>
+                                        <li>• Execute o script novamente para nova autenticação</li>
+                                        <li>• Verifique o código de confirmação no Telegram</li>
+                                    </ul>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-charcoal-900 mb-2">Erro ao encaminhar mensagens</h4>
+                                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-3">
+                                        <p class="text-orange-800 text-sm">ChatWriteForbiddenError: You can't write in this chat</p>
+                                    </div>
+                                    <p class="text-charcoal-600 text-sm mb-2"><strong>Solução:</strong></p>
+                                    <ul class="text-charcoal-600 text-sm space-y-1 ml-4">
+                                        <li>• Verifique permissões no chat de destino</li>
+                                        <li>• Confirme se o bot pode enviar mensagens</li>
+                                        <li>• Verifique se não há restrições no chat</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl border border-sage-200">
+                            <h3 class="text-xl font-semibold text-charcoal-900 mb-4">Dicas de Performance</h3>
+                            <ul class="text-charcoal-600 space-y-2">
+                                <li class="flex items-start space-x-2">
+                                    <div class="w-2 h-2 bg-sage-600 rounded-full mt-2"></div>
+                                    <span>Use filtros para reduzir o volume de mensagens processadas</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <div class="w-2 h-2 bg-sage-600 rounded-full mt-2"></div>
+                                    <span>Configure poucas rotas simultâneas para melhor performance</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <div class="w-2 h-2 bg-sage-600 rounded-full mt-2"></div>
+                                    <span>Monitore o uso de memória com muitos chats</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <div class="w-2 h-2 bg-sage-600 rounded-full mt-2"></div>
+                                    <span>Use sessões dedicadas para diferentes propósitos</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-sage-900 text-white py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-3 mb-6">
+                    <div class="w-8 h-8 bg-sage-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-semibold">Telegram Backup CLI</span>
+                </div>
+                
+                <p class="text-sage-300 mb-8 max-w-2xl mx-auto">
+                    Documentação técnica completa do sistema profissional de backup para Telegram. 
+                    Desenvolvido com Python e tecnologias modernas.
+                </p>
+                
+                <div class="border-t border-sage-700 pt-8">
+                    <p class="text-sage-400 text-sm">
+                        © 2024 Telegram Backup CLI. Documentação técnica completa e exemplos práticos.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll reveal animation
+        function initScrollReveal() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                    }
+                });
+            }, observerOptions);
+            
+            document.querySelectorAll('.scroll-reveal').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // Smooth scroll for navigation
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                const offsetTop = element.offsetTop - 100;
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initScrollReveal();
+            
+            // Add smooth scrolling to all anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    scrollToSection(targetId);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
