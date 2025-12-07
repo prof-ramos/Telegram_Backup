@@ -36,7 +36,18 @@ class StreamlitUtils:
         if not dt:
             return "Nunca"
         
-        now = datetime.now()
+        # Garantir que dt tenha timezone (se for naive, assume UTC ou local de acordo com lógica do Telethon)
+        # Telethon retorna aware datetimes (UTC). datetime.now() é naive por padrão.
+        # Solução: converter tudo para UTC aware.
+
+        from datetime import timezone
+
+        now = datetime.now(timezone.utc)
+
+        if dt.tzinfo is None:
+            # Se dt é naive, assume UTC para comparação segura
+            dt = dt.replace(tzinfo=timezone.utc)
+
         diff = now - dt
         
         if diff.total_seconds() < 60:

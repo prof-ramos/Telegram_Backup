@@ -69,7 +69,7 @@ def test_backend():
         
         # Testar configuração padrão
         config = BackupConfig.default()
-        print(f"✅ Configuração padrão criada: {len(config.routes)} rotas, {len(config.filters)} filtros")
+        print(f"✅ Configuração padrão criada: {len(config.routes)} rotas")
         
         return True
     except Exception as e:
@@ -126,10 +126,15 @@ def test_files():
     
     for dir_name in required_dirs:
         path = Path(dir_name)
-        if path.exists() or path.mkdir(exist_ok=True):
-            print(f"✅ Diretório {dir_name} disponível")
-        else:
-            print(f"❌ Diretório {dir_name} não pode ser criado")
+        try:
+            path.mkdir(exist_ok=True)
+            if path.exists():
+                print(f"✅ Diretório {dir_name} disponível")
+            else:
+                print(f"❌ Diretório {dir_name} não foi criado")
+                return False
+        except Exception as e:
+            print(f"❌ Diretório {dir_name} não pode ser criado: {e}")
             return False
     
     return True
